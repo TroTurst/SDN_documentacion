@@ -1,0 +1,121 @@
+---
+acls:
+    acl_alumnos:
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.40/32
+            tcp_dst: 80
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.40/32
+            tcp_dst: 443
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ipv4_dst: 10.0.1.0/24
+            actions:
+                allow: 0
+        - rule:
+            actions:
+                allow: 1
+
+    acl_docentes:
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.40/32
+            tcp_dst: 80
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.40/32
+            tcp_dst: 443
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.20/32
+            tcp_dst: 80
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            ipv4_dst: 10.0.1.20/32
+            tcp_dst: 443
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ipv4_dst: 10.0.1.0/24
+            actions:
+                allow: 0
+        - rule:
+            actions:
+                allow: 1
+
+    acl_administrativos:
+        - rule:
+            dl_type: 0x0800
+            ipv4_dst: 10.0.1.0/24
+            actions:
+                allow: 1
+        - rule:
+            actions:
+                allow: 1
+
+    acl_cuarentena:
+        - rule:
+            dl_type: 0x0806
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ipv4_dst: 192.168.99.0/24
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ipv4_src: 192.168.99.0/24
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 17
+            udp_dst: 67
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 17
+            udp_dst: 53
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            ip_proto: 6
+            tcp_dst: 80
+            actions:
+                allow: 1
+        - rule:
+            dl_type: 0x0800
+            actions:
+                allow: 0
+
+    acl_invitados:
+        - rule:
+            dl_type: 0x0800
+            ipv4_dst: 10.0.1.0/24
+            actions:
+                allow: 0
+        - rule:
+            actions:
+                allow: 1
