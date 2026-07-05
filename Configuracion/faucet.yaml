@@ -5,41 +5,39 @@ include:
 vlans:
     vlan_alumnos:
         vid: 100
-        description: "VLAN de alumnos"
         faucet_vips: ["10.100.0.1/20"]
+        faucet_mac: "0e:00:00:00:01:00"
         acls_in: [acl_alumnos]
     vlan_docentes:
         vid: 200
-        description: "VLAN de docentes"
         faucet_vips: ["10.200.0.1/22"]
+        faucet_mac: "0e:00:00:00:02:00"
         acls_in: [acl_docentes]
     vlan_administrativos:
         vid: 300
-        description: "VLAN de administrativos"
         faucet_vips: ["10.30.0.1/24"]
+        faucet_mac: "0e:00:00:00:03:00"
         acls_in: [acl_administrativos]
     vlan_invitados:
         vid: 400
-        description: "VLAN de invitados"
         faucet_vips: ["10.40.0.1/24"]
+        faucet_mac: "0e:00:00:00:04:00"
         acls_in: [acl_invitados]
     vlan_superadmin:
         vid: 500
-        description: "VLAN de superadministrador"
         faucet_vips: ["10.50.0.1/26"]
+        faucet_mac: "0e:00:00:00:05:00"
     vlan_servidores:
         vid: 900
-        description: "VLAN de servidores"
         faucet_vips: ["10.0.1.1/24"]
+        faucet_mac: "0e:00:00:00:09:00"
     vlan_buffer:
         vid: 920
-        description: "VLAN interna buffer no enrutable"
     vlan_externa:
         vid: 910
-        description: "VLAN externa internet simulado y atacante"
     vlan_cuarentena:
         vid: 999
-        description: "VLAN de cuarentena pre-autenticacion"
+        faucet_mac: "0e:00:00:00:09:99"
         acls_in: [acl_cuarentena]
 
 routers:
@@ -54,29 +52,22 @@ dps:
         interfaces:
             1:
                 name: "ens9"
-                description: "mirror hacia nodo-sec ens5"
                 output_only: true
             2:
                 name: "ens6"
-                description: "trunk uplink A hacia sw-core1 ens8"
-                tagged_vlans: [vlan_alumnos, vlan_docentes,
-                               vlan_administrativos, vlan_invitados,
-                               vlan_superadmin, vlan_servidores,
+                tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
+                               vlan_invitados, vlan_superadmin, vlan_servidores,
                                vlan_buffer, vlan_cuarentena]
             3:
                 name: "ens7"
-                description: "vm-atacante ens4 VLAN910"
                 native_vlan: vlan_externa
             4:
                 name: "ens5"
-                description: "vm-simulacion-internet ens4 VLAN910"
                 native_vlan: vlan_externa
             6:
                 name: "ens8"
-                description: "trunk uplink B hacia sw-core2 ens8"
-                tagged_vlans: [vlan_alumnos, vlan_docentes,
-                               vlan_administrativos, vlan_invitados,
-                               vlan_superadmin, vlan_servidores,
+                tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
+                               vlan_invitados, vlan_superadmin, vlan_servidores,
                                vlan_buffer, vlan_cuarentena]
 
     sw-core1:
@@ -90,28 +81,62 @@ dps:
         interfaces:
             3:
                 name: "ens7"
-                description: "enlace A hacia sw-servidores ens4 VLAN900"
                 native_vlan: vlan_servidores
             4:
                 name: "ens8"
-                description: "trunk uplink A desde sw-gateway ens6"
-                tagged_vlans: [vlan_alumnos, vlan_docentes,
-                               vlan_administrativos, vlan_invitados,
-                               vlan_superadmin, vlan_servidores,
+                tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
+                               vlan_invitados, vlan_superadmin, vlan_servidores,
                                vlan_buffer, vlan_cuarentena]
             5:
                 name: "ens9"
-                description: "enlace A hacia nodo-auth ens4 VLAN999"
                 native_vlan: vlan_cuarentena
+            9:
+                name: "ens6"
+                stack:
+                    dp: sw-core2
+                    port: 3
             12:
                 name: "ens4"
-                description: "stack simplificado hacia sw-acc1 OF10"
                 stack:
                     dp: sw-acc1
                     port: 10
+
+    sw-core2:
+        dp_id: 0x000032c630327e45
+        hardware: "Open vSwitch"
+        stack:
+            priority: 2
+        lldp_beacon:
+            send_interval: 5
+            max_per_interval: 5
+        interfaces:
+            1:
+                name: "ens4"
+                stack:
+                    dp: sw-acc1
+                    port: 5
+            3:
+                name: "ens6"
+                stack:
+                    dp: sw-core1
+                    port: 9
+            4:
+                name: "ens7"
+                native_vlan: vlan_servidores
+            5:
+                name: "ens8"
+                tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
+                               vlan_invitados, vlan_superadmin, vlan_servidores,
+                               vlan_buffer, vlan_cuarentena]
+            6:
+                name: "ens9"
+                native_vlan: vlan_cuarentena
+
     sw-acc1:
         dp_id: 0x000092d8d9854f4c
         hardware: "Open vSwitch"
+        stack:
+            priority: 3
         lldp_beacon:
             send_interval: 5
             max_per_interval: 5
@@ -121,40 +146,55 @@ dps:
                 description: "h1 ens4 acceso dinamico"
                 native_vlan: vlan_cuarentena
                 acls_in: [acl_cuarentena]
+            5:
+                name: "ens6"
+                stack:
+                    dp: sw-core2
+                    port: 1
             7:
                 name: "ens9"
                 description: "h2 ens4 acceso dinamico"
-                native_vlan: vlan_alumnos
+                native_vlan: vlan_cuarentena
                 acls_in: [acl_cuarentena]
             10:
                 name: "ens4"
-                description: "stack simplificado hacia sw-core1 OF12"
                 stack:
                     dp: sw-core1
                     port: 12
-            11:
-                name: "vlan999"
-                description: "portal cautivo interno sw-acc1"
-                native_vlan: vlan_cuarentena
-
             12:
                 name: "dhcp-trunk"
                 description: "trunk DHCP/DNS NFV multi-vlan"
                 tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
                                vlan_invitados, vlan_superadmin, vlan_buffer]
+
     sw-servidores:
         dp_id: 0x0000ea33258def43
         hardware: "Open vSwitch"
+        stack:
+            priority: 4
+        lldp_beacon:
+            send_interval: 5
+            max_per_interval: 5
         interfaces:
             1:
                 name: "ens4"
-                description: "enlace A desde sw-core1 ens7 VLAN900"
-                native_vlan: vlan_servidores
+                stack:
+                    dp: sw-core1
+                    port: 3
             2:
                 name: "ens5"
-                description: "enlace B desde sw-core2 ens7 VLAN900"
+                stack:
+                    dp: sw-core2
+                    port: 4
+            5:
+                name: "administracion"
                 native_vlan: vlan_servidores
-            3:
-                name: "srv-ovs"
-                description: "enlace interno hacia br-srv y namespaces de recursos"
+            6:
+                name: "investigacion"
+                native_vlan: vlan_servidores
+            7:
+                name: "gest_acad"
+                native_vlan: vlan_servidores
+            8:
+                name: "bib_digital"
                 native_vlan: vlan_servidores
