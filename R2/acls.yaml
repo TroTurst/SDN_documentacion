@@ -1,0 +1,195 @@
+acls:
+
+  # Permite ping/ICMP únicamente hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 1
+      ipv4_dst: 10.0.1.40/32
+      actions:
+        allow: 1
+
+  # Permite HTTP hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.40/32
+      tcp_dst: 80
+      actions:
+        allow: 1
+
+  # Permite HTTPS hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.40/32
+      tcp_dst: 443
+      actions:
+        allow: 1
+
+  # Bloquea el resto de servicios internos.
+  - rule:
+      dl_type: 0x0800
+      ipv4_dst: 10.0.1.0/24
+      actions:
+        allow: 0
+
+  # Permite el resto del tráfico no dirigido a la red de servidores.
+  - rule:
+      actions:
+        allow: 1
+
+
+  acl_docentes:
+
+  # Permite ping/ICMP hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 1
+      ipv4_dst: 10.0.1.40/32
+      actions:
+        allow: 1
+
+  # Permite ping/ICMP hacia Investigación.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 1
+      ipv4_dst: 10.0.1.20/32
+      actions:
+        allow: 1
+
+  # Permite HTTP hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.40/32
+      tcp_dst: 80
+      actions:
+        allow: 1
+
+  # Permite HTTPS hacia Biblioteca Digital.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.40/32
+      tcp_dst: 443
+      actions:
+        allow: 1
+
+  # Permite HTTP hacia Investigación.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.20/32
+      tcp_dst: 80
+      actions:
+        allow: 1
+
+  # Permite HTTPS hacia Investigación.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      ipv4_dst: 10.0.1.20/32
+      tcp_dst: 443
+      actions:
+        allow: 1
+
+  # Bloquea el resto de servicios internos.
+  - rule:
+      dl_type: 0x0800
+      ipv4_dst: 10.0.1.0/24
+      actions:
+        allow: 0
+
+  # Permite el resto del tráfico no dirigido a la red de servidores.
+  - rule:
+      actions:
+        allow: 1
+
+
+  acl_administrativos:
+
+
+  # Permite todo el tráfico IPv4 hacia la red de servidores,
+  # incluyendo TCP, UDP e ICMP/ping.
+  - rule:
+      dl_type: 0x0800
+      ipv4_dst: 10.0.1.0/24
+      actions:
+        allow: 1
+
+  - rule:
+      actions:
+        allow: 1
+
+
+  acl_cuarentena:
+
+
+  # Permite tráfico dentro de la red de cuarentena.
+  - rule:
+      dl_type: 0x0800
+      ipv4_dst: 192.168.99.0/24
+      actions:
+        allow: 1
+
+  - rule:
+      dl_type: 0x0800
+      ipv4_src: 192.168.99.0/24
+      actions:
+        allow: 1
+
+  # Permite DHCP.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 17
+      udp_dst: 67
+      actions:
+        allow: 1
+
+  # Permite DNS.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 17
+      udp_dst: 53
+      actions:
+        allow: 1
+
+  # Permite HTTP hacia portal cautivo/servicios de autenticación.
+  - rule:
+      dl_type: 0x0800
+      ip_proto: 6
+      tcp_dst: 80
+      actions:
+        allow: 1
+
+  # Bloquea el resto de tráfico IPv4.
+  - rule:
+      dl_type: 0x0800
+      actions:
+        allow: 0
+
+
+  acl_invitados:
+
+  # Invitados no tienen acceso a la red de servidores.
+  - rule:
+      dl_type: 0x0800
+      ipv4_dst: 10.0.1.0/24
+      actions:
+        allow: 0
+
+  - rule:
+      actions:
+        allow: 1
+
+
+  acl_block_externa:
+  - rule:
+      dl_type: 2048
+      ipv4_src: 172.16.0.10/32
+      actions:
+        allow: 0
+
+  - rule:
+      actions:
+        allow: 1

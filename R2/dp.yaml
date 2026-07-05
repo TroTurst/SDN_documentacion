@@ -1,0 +1,223 @@
+dps:
+  sw-gateway:
+    dp_id: 0x000096090f9b524c
+    hardware: "Open vSwitch"
+    interfaces:
+      1:
+        name: "ens9"
+        output_only: true
+
+      2:
+        name: "ens6"
+        tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos, vlan_invitados, vlan_superadmin, vlan_servidores, vlan_buffer, vlan_cuarentena]
+
+      3:
+        name: "ens7"
+        native_vlan: vlan_externa
+        acls_in:
+          - acl_block_externa
+
+      4:
+        name: "ens5"
+        native_vlan: vlan_externa
+        acls_in:
+          - acl_block_externa
+
+      6:
+        name: "ens8"
+        tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos, vlan_invitados, vlan_superadmin, vlan_servidores, vlan_buffer, vlan_cuarentena]
+
+
+  sw-core1:
+    dp_id: 0x00007e9b3799d343
+    hardware: "Open vSwitch"
+    stack:
+      priority: 1
+    lldp_beacon:
+      send_interval: 5
+      max_per_interval: 5
+    interfaces:
+      3:
+        name: "ens7"
+        description: "stack hacia sw-servidores ens4"
+        stack:
+          dp: sw-servidores
+          port: 1
+
+      4:
+        name: "ens8"
+        description: "trunk hacia gateway ens6"
+        tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos, vlan_invitados, vlan_superadmin, vlan_servidores, vlan_buffer, vlan_cuarentena]
+
+      5:
+        name: "ens9"
+        description: "enlace hacia nodo_auth ens4 / cuarentena"
+        native_vlan: vlan_cuarentena
+
+      9:
+        name: "ens6"
+        description: "stack hacia sw-core2 ens6"
+        stack:
+          dp: sw-core2
+          port: 3
+
+      12:
+        name: "ens4"
+        description: "stack principal hacia sw-acc1 ens4"
+        stack:
+          dp: sw-acc1
+          port: 10
+
+      21:
+        name: "ens5"
+        description: "segundo enlace stack hacia sw-acc1 ens5 - enlace paralelo de reserva"
+        stack:
+          dp: sw-acc1
+          port: 15
+
+
+  sw-core2:
+    dp_id: 0x000032c630327e45
+    hardware: "Open vSwitch"
+    stack:
+      priority: 2
+    lldp_beacon:
+      send_interval: 5
+      max_per_interval: 5
+    interfaces:
+      1:
+        name: "ens4"
+        description: "stack principal hacia sw-acc1 ens6"
+        stack:
+          dp: sw-acc1
+          port: 5
+
+      3:
+        name: "ens6"
+        description: "stack hacia sw-core1 ens6"
+        stack:
+          dp: sw-core1
+          port: 9
+
+      4:
+        name: "ens7"
+        description: "stack hacia sw-servidores ens5"
+        stack:
+          dp: sw-servidores
+          port: 2
+
+      5:
+        name: "ens8"
+        description: "trunk hacia gateway ens8"
+        tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos, vlan_invitados, vlan_superadmin, vlan_servidores, vlan_buffer, vlan_cuarentena]
+
+      6:
+        name: "ens9"
+        description: "enlace hacia nodo_auth ens5 / cuarentena"
+        native_vlan: vlan_cuarentena
+
+      10:
+        name: "ens5"
+        description: "segundo enlace stack hacia sw-acc1 ens7 - enlace paralelo de reserva"
+        stack:
+          dp: sw-acc1
+          port: 6
+
+
+  sw-acc1:
+    dp_id: 0x000092d8d9854f4c
+    hardware: "Open vSwitch"
+    stack:
+      priority: 3
+    lldp_beacon:
+      send_interval: 5
+      max_per_interval: 5
+    interfaces:
+      2:
+        name: "ens8"
+        description: "h1 ens4 acceso dinamico"
+        native_vlan: vlan_cuarentena
+        acls_in: [acl_cuarentena]
+
+      5:
+        name: "ens6"
+        description: "stack principal hacia sw-core2 ens4"
+        stack:
+          dp: sw-core2
+          port: 1
+
+      6:
+        name: "ens7"
+        description: "segundo enlace stack hacia sw-core2 ens5 - enlace paralelo de reserva"
+        stack:
+          dp: sw-core2
+          port: 10
+
+      7:
+        name: "ens9"
+        description: "h2 ens4 acceso dinamico"
+        native_vlan: vlan_alumnos
+        acls_in: [acl_alumnos]
+
+      10:
+        name: "ens4"
+        description: "stack principal hacia sw-core1 ens4"
+        stack:
+          dp: sw-core1
+          port: 12
+
+      12:
+        name: "dhcp-trunk"
+        description: "trunk DHCP/DNS NFV multi-vlan"
+        tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos, vlan_invitados, vlan_superadmin, vlan_buffer]
+
+      15:
+        name: "ens5"
+        description: "segundo enlace stack hacia sw-core1 ens5 - enlace paralelo de reserva"
+        stack:
+          dp: sw-core1
+          port: 21
+
+
+  sw-servidores:
+    dp_id: 0x0000ea33258def43
+    hardware: "Open vSwitch"
+    stack:
+      priority: 4
+    lldp_beacon:
+      send_interval: 5
+      max_per_interval: 5
+    interfaces:
+      1:
+        name: "ens4"
+        description: "stack hacia sw-core1 ens7"
+        stack:
+          dp: sw-core1
+          port: 3
+
+      2:
+        name: "ens5"
+        description: "stack hacia sw-core2 ens7"
+        stack:
+          dp: sw-core2
+          port: 4
+
+      5:
+        name: "administracion"
+        description: "servicio administracion 10.0.1.10"
+        native_vlan: vlan_servidores
+
+      6:
+        name: "investigacion"
+        description: "servicio investigacion 10.0.1.20"
+        native_vlan: vlan_servidores
+
+      7:
+        name: "gest_acad"
+        description: "gestion_academica 10.0.1.30"
+        native_vlan: vlan_servidores
+
+      8:
+        name: "bib_digital"
+        description: "biblioteca_digital 10.0.1.40"
+        native_vlan: vlan_servidores
