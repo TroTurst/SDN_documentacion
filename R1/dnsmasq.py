@@ -1,0 +1,6 @@
+interface=ens4
+bind-interfaces
+dhcp-range=192.168.99.10,192.168.99.100,12h
+dhcp-option=option:router,192.168.99.1
+dhcp-option=option:dns-server,192.168.99.1
+address=/#/192.168.99.1
