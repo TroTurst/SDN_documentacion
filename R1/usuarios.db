@@ -1,0 +1,14 @@
+import sqlite3
+conn = sqlite3.connect('/home/ubuntu/portal/usuarios.db')
+cur = conn.cursor()
+cur.execute('''CREATE TABLE IF NOT EXISTS usuarios
+               (usuario TEXT, password TEXT, rol TEXT)''')
+cur.executemany('INSERT INTO usuarios VALUES (?,?,?)', [
+    ('alumno1',   'pass123', 'alumno'),
+    ('alumno2',   'pass123', 'alumno'),
+    ('docente1',  'pass123', 'docente'),
+    ('admin1',    'pass123', 'administrativo'),
+    ('invitado1', 'pass123', 'invitado'),
+])
+conn.commit()
+conn.close()
