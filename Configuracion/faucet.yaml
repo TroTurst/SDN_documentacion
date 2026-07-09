@@ -69,6 +69,10 @@ dps:
                 tagged_vlans: [vlan_alumnos, vlan_docentes, vlan_administrativos,
                                vlan_invitados, vlan_superadmin, vlan_servidores,
                                vlan_buffer, vlan_cuarentena]
+            20:
+                name: "r2ovs0"
+                description: "Prueba escalabilidad de nodos R2"
+                native_vlan: vlan_alumnos
 
     sw-core1:
         dp_id: 0x00007e9b3799d343
